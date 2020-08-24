@@ -1,0 +1,116 @@
+config:
+    name: 新建图文内容
+    variables: 
+        name_timestamp: ${get_timestamp1()}
+        num_tiamestamp: ${get_timestamp()}
+    verify: False
+teststeps:
+-   name: 获取应用信息,token
+    testcase: testcases/appInfor.yml
+    extract: 
+        - appKey
+        - appToken
+-   name: 可选择的分类
+    request:
+        headers:
+            User-Agent: Mozilla/5.0 (Linux; Android 9; VOG-AL00 Build/HUAWEIVOG-AL00;
+                wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120
+                MQQBrowser/6.2 TBS/045327 Mobile Safari/537.36 MMWEBID/3549 MicroMessenger/7.0.17.1720(0x27001139)
+                Process/tools WeChat/arm64 NetType/WIFI Language/zh_CN ABI/arm64
+            X-Requested-With: com.tencent.mm
+        method: GET
+        params:
+            _sign: fe90ec1aaa8a3f0cd6e928b5ac9c6010
+            _timestamp: '1598004899000'
+            # 操作：新增内容时
+            operation: add
+            terminal: wechat
+            token: ${appToken}
+            v: ''
+        url: http://10.23.190.107/zhgd_mms/news/getClassfiyList
+    validate:
+        - eq: [status_code,200]
+        - eq: [headers.Content-Type,application/json]
+        - eq: [content.code,200]
+    extract: 
+        parentClassify: content.results.data.0.value
+        classify: content.results.data.0.children.0.value
+-   name: 新建内容
+    request:
+        data:
+            _sign: 574e57a4bc4cf00f327142f0b129e81e
+            _timestamp: '1598004952000'
+            appInformationKey: ${appKey}
+            classifyKey: ${classify}
+            content: <p>新建图文</p>
+            newsTag: me
+            newsTitle: 新建图文${name_timestamp}
+            parentClassifyKey: ${parentClassify}
+            # 状态：-1删除, 0草稿，1等待审核，2初审通过(等待终审),
+            # 3审核不通过，4启用中，5禁用中，6启用，7禁用，8同步失败，9终审通过(审核通过)
+            status: '0'
+            # 模板类型:1图文，2轮显
+            styleType: '1'
+            terminal: wechat
+            token: ${appToken}
+            v: ''
+        headers:
+            Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+            User-Agent: Mozilla/5.0 (Linux; Android 9; VOG-AL00 Build/HUAWEIVOG-AL00;
+                wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120
+                MQQBrowser/6.2 TBS/045327 Mobile Safari/537.36 MMWEBID/3549 MicroMessenger/7.0.17.1720(0x27001139)
+                Process/tools WeChat/arm64 NetType/WIFI Language/zh_CN ABI/arm64
+            X-Requested-With: com.tencent.mm
+        method: POST
+        url: http://10.23.190.107/zhgd_mms/news/save_news
+    validate:
+        - eq: [status_code, 200]
+        - eq: [headers.Content-Type, application/json]
+        - eq: [content.code, 200]
+        - contains: [content.results.data.newsTitle, 新建图文]
+
+# -   name: /zhgd_mms/news/getClassfiyList
+#     request:
+#         headers:
+#             User-Agent: Mozilla/5.0 (Linux; Android 9; VOG-AL00 Build/HUAWEIVOG-AL00;
+#                 wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120
+#                 MQQBrowser/6.2 TBS/045327 Mobile Safari/537.36 MMWEBID/3549 MicroMessenger/7.0.17.1720(0x27001139)
+#                 Process/tools WeChat/arm64 NetType/WIFI Language/zh_CN ABI/arm64
+#             X-Requested-With: com.tencent.mm
+#         method: GET
+#         params:
+#             _sign: a1b2578e0666f6037ddf5700334acb2b
+#             _timestamp: '1598004952000'
+#             terminal: wechat
+#             token: ${appToken}
+#             v: ''
+#         url: http://10.23.190.107/zhgd_mms/news/getClassfiyList
+#     validate:
+#         - eq: [status_code,200]
+#         - eq: [headers.Content-Type,application/json]
+#         - eq: [content.code,200]
+# -   name: /zhgd_mms/news/getNewsList
+#     request:
+#         headers:
+#             User-Agent: Mozilla/5.0 (Linux; Android 9; VOG-AL00 Build/HUAWEIVOG-AL00;
+#                 wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120
+#                 MQQBrowser/6.2 TBS/045327 Mobile Safari/537.36 MMWEBID/3549 MicroMessenger/7.0.17.1720(0x27001139)
+#                 Process/tools WeChat/arm64 NetType/WIFI Language/zh_CN ABI/arm64
+#             X-Requested-With: com.tencent.mm
+#         method: GET
+#         params:
+#             _sign: 1c6b08dd7b7adc33ab94152c555ee911
+#             _timestamp: '1598004952000'
+#             appInformationKey: ${appKey}
+#             classifyKey: ''
+#             offset: '1'
+#             pageSize: '20'
+#             parentClassifyKey: ''
+#             terminal: wechat
+#             token: ${appToken}
+#             v: ''
+#         url: http://10.23.190.107/zhgd_mms/news/getNewsList
+#     validate:
+#         - eq: [status_code,200]
+#         - eq: [headers.Content-Type,application/json]
+#         - eq: [content.code,200]

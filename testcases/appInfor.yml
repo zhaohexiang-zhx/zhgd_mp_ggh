@@ -12,7 +12,8 @@ config:
             X-Requested-With: com.tencent.mm
     verify: False
     output: 
-        - get_token
+        - appKey
+        - appToken
 teststeps:
 -   name: 登录
     request:
@@ -33,21 +34,5 @@ teststeps:
         - eq: [headers.Content-Type,application/json]
         - eq: [content.code,200]
     extract: 
-        get_token: content.results.data.token
-          
-
--   name: 获取应用信息
-    request:
-        method: GET
-        params:
-            _sign: c09e0a3a0b04a78d9a56a113358bcd91
-            _timestamp: '1597904422000'
-            appInformationKey: 5d5c581bb3634060b754e4bcb6c245ac
-            terminal: wechat
-            token: ${get_token}
-            v: ''
-        url: /app/get_app_index_info
-    validate:
-        - eq: [status_code,200]
-        - eq: [headers.Content-Type,application/json]
-        - eq: [content.code,200]
+        appKey: content.results.data.user.appInformationKey
+        appToken: content.results.data.token

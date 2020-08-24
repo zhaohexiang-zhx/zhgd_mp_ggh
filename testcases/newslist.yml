@@ -1,0 +1,56 @@
+config:
+    name: testcase description
+    variables: 
+        get_token: ${debug_token()}
+    headers:
+        User-Agent: Mozilla/5.0 (Linux; Android 9; VOG-AL00 Build/HUAWEIVOG-AL00;
+            wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120
+            MQQBrowser/6.2 TBS/045327 Mobile Safari/537.36 MMWEBID/3549 MicroMessenger/7.0.17.1720(0x27001139)
+            Process/tools WeChat/arm64 NetType/WIFI Language/zh_CN ABI/arm64
+        X-Requested-With: com.tencent.mm
+    verify: False
+teststeps:
+-   name: 获取应用信息
+    testcase: testcases/appInfor.yml
+    extract: 
+        - appKey
+
+-   name: 获取分类信息
+    request:
+        method: GET
+        params:
+            _sign: ae87258792d1aebe87c875c3cb0f2b1b
+            _timestamp: '1597992127000'
+            terminal: wechat
+            token: ${get_token}
+            v: ''
+        url: http://10.23.190.107/zhgd_mms/news/getClassfiyList
+    validate:
+        - eq: [status_code,200]
+        - eq: [headers.Content-Type,application/json]
+        - eq: [content.code,200]
+    extract:
+        parentClssify: content.results.data.0.value
+        classify: content.results.data.0.children.0.value
+-   name: 获取内容列表
+    request:
+        method: GET
+        params:
+            _sign: e3df525b45a72926cb942956f8c5bb53
+            _timestamp: '1597992127000'
+            appInformationKey: ${appKey}
+            # 状态
+            statusMult: '0'
+            offset: '1'
+            pageSize: '20'
+            # 分类
+#            parentClassifyKey: ${parentClssify}
+#            classifyKey: ${classify}
+            terminal: wechat
+            token: ${get_token}
+            v: ''
+        url: http://10.23.190.107/zhgd_mms/news/getNewsList
+    validate:
+        - eq: [status_code,200]
+        - eq: [headers.Content-Type,application/json]
+        - eq: [content.code,200]
